@@ -17,7 +17,7 @@ const server = http.createServer(app);
 // Middleware
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-        ? ['https://poker-texas-holdem.netlify.app', 'https://www.poker-texas-holdem.netlify.app']
+        ? ['https://pokerappmath.netlify.app']
         : '*',
     methods: ['GET', 'POST'],
     credentials: true
@@ -181,14 +181,19 @@ app.patch("/api/profile", auth, async (req, res) => {
     }
 });
 
+// Health endpoint for platform probes
+app.get('/health', (req, res) => {
+    res.status(200).send({ ok: true, env: process.env.NODE_ENV || 'development' });
+});
+
 // Initialisation des sockets
 const io = initSocket(server);
-server.listen(PORT, () => {
-    console.log(`
-🃏 Serveur de poker démarré!
-🌐 http://localhost:${PORT}
-✨ Mode: ${process.env.NODE_ENV || "development"}
-    `);
+
+// Listen on all interfaces explicitly so platform proxies (like Render) can reach the process
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🃏 Serveur de poker démarré!`);
+    console.log(`🌐 Listening on port: ${PORT} (bound to 0.0.0.0)`);
+    console.log(`✨ Mode: ${process.env.NODE_ENV || 'development'}`);
 });
 
 // Global error handlers to avoid process crash on unexpected errors
