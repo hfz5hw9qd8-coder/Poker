@@ -15,11 +15,17 @@ const app = express();
 const server = http.createServer(app);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production' 
+        ? ['https://poker-texas-holdem.netlify.app', 'https://www.poker-texas-holdem.netlify.app']
+        : '*',
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
 app.use(express.json());
 
 // Port configuration
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // Base de données
 connectDB();

@@ -8,7 +8,16 @@ export const tables = new Map();
 export const userSockets = new Map();
 
 export const initSocket = (server) => {
-    const io = new Server(server, { cors: { origin: "*" } });
+    const io = new Server(server, {
+        cors: {
+            origin: process.env.NODE_ENV === 'production'
+                ? ['https://poker-texas-holdem.netlify.app', 'https://www.poker-texas-holdem.netlify.app']
+                : '*',
+            methods: ["GET", "POST"],
+            credentials: true
+        },
+        transports: ['websocket', 'polling']
+    });
 
     io.use(async (socket, next) => {
         try {
