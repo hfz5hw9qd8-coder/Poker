@@ -8,8 +8,15 @@
     };
 })();
 
-// Base URL for backend API/socket. Keep as a single constant so it's easy to change.
-const API_BASE = (window && window.location && window.location.hostname ? `${window.location.protocol}//${window.location.hostname}:5000` : 'http://localhost:5000');
+// Base URL for backend API/socket. Prefer an explicit runtime override (`window.API_BASE`) injected
+// from the hosting platform (Netlify/Render). Fall back to the same origin (no port) when
+// deployed, or to localhost:5000 for local development.
+const API_BASE = (typeof window !== 'undefined' && window.API_BASE)
+    ? window.API_BASE
+    : (typeof window !== 'undefined' && window.location && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:5000'
+        : (typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.hostname}` : 'http://localhost:5000')
+    );
 
 // Récupère token/username pour la handshake auth
 function getHandshakeAuth() {
