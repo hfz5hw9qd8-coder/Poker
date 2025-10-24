@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin - Poker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Administration</h1>
+    <div id="admin-login-panel">
+      <input id="adm-username" placeholder="admin" class="input-field">
+      <input id="adm-password" placeholder="password" type="password" class="input-field">
+      <button id="adm-login" class="btn btn-primary">Se connecter</button>
+    </div>
+
+    <div id="admin-app" class="hidden">
+      <h2>Utilisateurs</h2>
+      <div id="adm-users"></div>
+      <button id="adm-logout" class="btn btn-secondary">Se déconnecter</button>
+    </div>
+  </div>
+
+  <script>
+  const API_BASE = window.location.protocol + '//' + window.location.hostname + ':5000';
+
+  document.getElementById('adm-login').addEventListener('click', async () => {
+    const username = document.getElementById('adm-username').value;
+    const password = document.getElementById('adm-password').value;
+    try {
+      const res = await fetch(API_BASE + '/api/admin/login', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ username, password }) });
+      if (!res.ok) { alert('Erreur login'); return; }
+      const d = await res.json(); localStorage.setItem('adminToken', d.token);
+      document.getElementById('admin-login-panel').classList.add('hidden');
+      document.getElementById('admin-app').classList.remove('hidden');
+      loadUsers();
+    } catch (err) { alert('Erreur réseau'); }
+  });
+
+  document.getElementById('adm-logout').addEventListener('click', () => {
+    localStorage.removeItem('adminToken');
+    document.getElementById('admin-app').classList.add('hidden');
+    document.getElementById('admin-login-panel').classList.remove('hidden');
+  });
+
+  async function loadUsers() {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const res = await fetch(API_BASE + '/api/admin/users', { headers: { Authorization: 'Bearer ' + token } });
+      if (!res.ok) { alert('Erreur chargement utilisateurs'); return; }
+      const d = await res.json();
+      const cont = document.getElementById('adm-users');
+      cont.innerHTML = d.users.map(u => `<div class="adm-row">${u.username} (${u.email||'n/a'}) <button data-id="${u.id||u._id}" class="btn btn-danger adm-del">Supprimer</button></div>`).join('');
+      cont.querySelectorAll('.adm-del').forEach(b => b.addEventListener('click', async (e) => {
+        const id = e.target.getAttribute('data-id'); if (!confirm('Supprimer ?')) return;
+        const r = await fetch(API_BASE + '/api/admin/users/' + id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
+        if (!r.ok) { alert('Erreur suppression'); return; }
+        loadUsers();
+      }));
+    } catch (err) { alert('Erreur réseau'); }
+  }
+  
+  // Admin: load tables
+  async function loadTables() {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const res = await fetch(API_BASE + '/api/admin/tables', { headers: { Authorization: 'Bearer ' + token } });
+      if (!res.ok) { alert('Erreur chargement tables'); return; }
+      const d = await res.json();
+      const cont = document.getElementById('adm-users');
+      // append tables under users
+      const tablesHtml = d.tables.map(t => `<div class="adm-row">[${t.status}] ${t.name} (${t.id}) - players: ${t.players.map(p=>p.username).join(', ')} <button data-id="${t.id}" class="btn btn-warning adm-force">Force end</button></div>`).join('');
+      cont.innerHTML = (cont.innerHTML || '') + '<h3>Tables actives</h3>' + tablesHtml;
+      cont.querySelectorAll('.adm-force').forEach(b => b.addEventListener('click', async (e)=>{
+        const id = e.target.getAttribute('data-id'); if (!confirm('Forcer la fin de la table ?')) return;
+        const r = await fetch(API_BASE + '/api/admin/tables/' + id + '/force-end', { method: 'POST', headers: { Authorization: 'Bearer ' + token } });
+        if (!r.ok) { alert('Erreur'); return; }
+        alert('Table terminée'); loadTables();
+      }));
+    } catch (err) { alert('Erreur réseau'); }
+  }
+  </script>
+</body>
+</html>

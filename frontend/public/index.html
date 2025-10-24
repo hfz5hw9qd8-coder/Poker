@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jouez au Texas Hold'em Poker en ligne gratuitement avec vos amis">
+    <title>Texas Hold'em Poker en ligne | Jouez gratuitement</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Section Accueil -->
+        <section id="welcome-section">
+            <h1>🃏 Texas Hold'em Poker</h1>
+            <p class="tagline">Jouez au poker en ligne avec vos amis</p>
+            
+            <!-- Section Connexion -->
+            <div id="login-section" class="auth-container">
+                <div class="form-group">
+                    <input type="text" id="username" placeholder="Votre pseudo" class="input-field" />
+                    <input type="password" id="password" placeholder="Mot de passe" class="input-field" />
+                    <button id="loginBtn" class="btn btn-primary">Se connecter</button>
+                </div>
+                <div id="login-error" class="form-error" style="color:crimson;margin-top:8px;display:none"></div>
+                <div class="auth-links">
+                    <button id="registerBtn" class="btn btn-secondary">Créer un compte</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Lobby -->
+        <section id="lobby-section" class="hidden">
+            <div class="user-info">
+                <span id="player-chips">💰 1000</span>
+                <span id="player-name"></span>
+                <button id="logoutBtn" class="btn btn-small">Déconnexion</button>
+                <button id="adminOpenBtn" class="btn btn-small">Admin</button>
+            </div>
+            
+            <div class="tables-container">
+                <h2>Tables disponibles</h2>
+                <div id="tables-list" class="tables-grid"></div>
+                <button id="createTableBtn" class="btn btn-primary">Créer une table</button>
+            </div>
+        </section>
+
+        <!-- Section Jeu -->
+        <section id="game-section" class="hidden">
+            <div class="game-header">
+                <div class="game-info">
+                    <span id="pot">Pot: 0</span>
+                    <span id="blind">Blindes: 10/20</span>
+                </div>
+                <button id="leaveTableBtn" class="btn btn-small">Quitter la table</button>
+            </div>
+
+            <div class="poker-table">
+                <div id="community-cards" class="community-cards"></div>
+                <div id="players-container" class="players-container"></div>
+            </div>
+
+            <div id="game-controls" class="controls-container">
+                <div class="action-buttons">
+                    <button id="foldBtn" class="btn btn-danger">Se coucher</button>
+                        <button id="checkBtn" class="btn btn-secondary">Checker</button>
+                        <button id="callBtn" class="btn btn-primary">Suivre</button>
+                        <button id="raiseBtn" class="btn btn-success">Relancer</button>
+                </div>
+                <div class="bet-controls">
+                    <input type="range" id="betSlider" min="0" max="1000" value="0">
+                    <span id="betAmount">0</span>
+                </div>
+            </div>
+
+            <div id="chat-container" class="chat-container">
+                <div id="chat-messages" class="chat-messages"></div>
+                <div class="chat-input">
+                    <input type="text" id="chat-message" placeholder="Message...">
+                    <button id="sendMessageBtn" class="btn btn-small">Envoyer</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modals -->
+    <div id="register-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Créer un compte</h2>
+            <input type="text" id="register-username" placeholder="Pseudo" class="input-field">
+            <input type="email" id="register-email" placeholder="Email" class="input-field">
+            <input type="password" id="register-password" placeholder="Mot de passe" class="input-field">
+            <button id="submitRegisterBtn" class="btn btn-primary">S'inscrire</button>
+            <button class="btn btn-secondary close-modal">Annuler</button>
+        </div>
+    </div>
+
+    <div id="create-table-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Créer une table</h2>
+            <input type="text" id="table-name" placeholder="Nom de la table" class="input-field">
+            <select id="table-size" class="input-field">
+                <option value="2">2 joueurs</option>
+                <option value="6">6 joueurs</option>
+                <option value="9">9 joueurs</option>
+            </select>
+            <div class="blind-settings">
+                <input type="number" id="small-blind" placeholder="Small blind" class="input-field">
+                <input type="number" id="big-blind" placeholder="Big blind" class="input-field">
+            </div>
+            <button id="submitCreateTableBtn" class="btn btn-primary">Créer</button>
+            <button class="btn btn-secondary close-modal">Annuler</button>
+        </div>
+    </div>
+
+    <!-- Admin modal -->
+    <div id="admin-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Admin</h2>
+            <div id="admin-login">
+                <input type="text" id="admin-username" placeholder="Admin user" class="input-field">
+                <input type="password" id="admin-password" placeholder="Password" class="input-field">
+                <button id="adminLoginBtn" class="btn btn-primary">Se connecter</button>
+            </div>
+            <div id="admin-panel" class="hidden">
+                <h3>Utilisateurs</h3>
+                <div id="admin-users-list"></div>
+                <button id="adminLogoutBtn" class="btn btn-secondary">Se déconnecter</button>
+            </div>
+            <button class="btn btn-secondary close-modal">Fermer</button>
+        </div>
+    </div>
+
+    <script src="client.js"></script>
+</body>
+</html>

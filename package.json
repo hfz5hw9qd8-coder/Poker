@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.2",
+    "node-fetch": "^3.3.2",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "pkg": "^5.8.0"
+  },
+  "type": "module",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "view-users": "node tools/view_users.js",
+    "build:view-users": "npx pkg -t node18-win-x64 --out-path dist tools/view_users.cjs",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "db:seed": "node backend/scripts/seed.js",
+    "postinstall": "cd frontend && npm install --no-audit --no-fund",
+    "heroku-postbuild": "echo 'no build step'"
+  }
+}
